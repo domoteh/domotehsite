@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Оформлення замовлення — LMM{% endblock %}
+
+{% block content %}
+<h1 class="section__title">Оформлення замовлення</h1>
+
+<form method="post" class="checkout-grid">
+  {% csrf_token %}
+  <div>
+    <div class="checkout-section">
+      <h2 class="checkout-section__title">Контактна інформація</h2>
+      {% for field in form %}
+        {% if field.name in "first_name,last_name,email,phone" %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="form-errors">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="checkout-section">
+      <h2 class="checkout-section__title">Доставка</h2>
+      <div class="form-group">
+        <label for="{{ form.delivery_method.id_for_label }}">{{ form.delivery_method.label }}</label>
+        {{ form.delivery_method }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.nova_poshta_city.id_for_label }}">Місто</label>
+        {{ form.nova_poshta_city }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.nova_poshta_warehouse.id_for_label }}">Відділення</label>
+        {{ form.nova_poshta_warehouse }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.delivery_address.id_for_label }}">Адреса (якщо курʼєр)</label>
+        {{ form.delivery_address }}
+      </div>
+    </div>
+
+    <div class="checkout-section">
+      <h2 class="checkout-section__title">Оплата</h2>
+      <div class="form-group">
+        <label for="{{ form.payment_method.id_for_label }}">{{ form.payment_method.label }}</label>
+        {{ form.payment_method }}
+      </div>
+    </div>
+
+    <div class="checkout-section">
+      <h2 class="checkout-section__title">Коментар</h2>
+      <div class="form-group">{{ form.comment }}</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="checkout-section" style="position:sticky;top:100px">
+      <h2 class="checkout-section__title">Ваше замовлення</h2>
+      {% for item in cart_items %}
+      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.9rem;border-bottom:1px solid var(--color-border)">
+        <span>{{ item.product.name|truncatewords:6 }} &times;{{ item.quantity }}</span>
+        <span>{{ item.subtotal|floatformat:2 }} грн</span>
+      </div>
+      {% endfor %}
+      <div class="cart-summary__row cart-summary__total" style="margin-top:12px">
+        <span>Разом:</span>
+        <span>{{ cart_total|floatformat:2 }} грн</span>
+      </div>
+      <button type="submit" class="btn btn--accent" style="width:100%;margin-top:16px">Підтвердити замовлення</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

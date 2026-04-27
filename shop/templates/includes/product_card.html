@@ -1,0 +1,39 @@
+{% load humanize %}
+<article class="product-card">
+  <a href="{{ product.get_absolute_url }}" class="product-card__image">
+    {% if product.main_image %}
+    <img src="{{ product.main_image.url }}" alt="{{ product.name }}" loading="lazy">
+    {% else %}
+    <img src="https://via.placeholder.com/220x220?text=No+Image" alt="{{ product.name }}">
+    {% endif %}
+  </a>
+  <div class="product-card__badges">
+    {% if product.is_new %}<span class="badge badge--new">Новинка</span>{% endif %}
+    {% if product.is_bestseller %}<span class="badge badge--hit">Хіт</span>{% endif %}
+    {% if product.has_discount %}<span class="badge badge--sale">-{{ product.discount_percent }}%</span>{% endif %}
+  </div>
+  <div class="product-card__name">
+    <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+  </div>
+  <div class="product-card__sku">Код: {{ product.sku }}</div>
+  <div class="product-card__price">
+    {{ product.retail_price|floatformat:2 }} грн
+    {% if product.has_discount %}
+    <span class="product-card__old-price">{{ product.old_price|floatformat:2 }}</span>
+    {% endif %}
+  </div>
+  <div class="product-card__actions">
+    <form data-qty class="product-card__qty">
+      <button type="button" data-qty-btn="minus">-</button>
+      <input type="number" name="quantity" value="1" min="1">
+      <button type="button" data-qty-btn="plus">+</button>
+    </form>
+    <button class="btn btn--primary btn--sm product-card__buy"
+            hx-post="{% url 'cart:add' product.pk %}"
+            hx-include="closest [data-qty] input"
+            hx-target="#mini-cart"
+            hx-swap="innerHTML">
+      Купити
+    </button>
+  </div>
+</article>

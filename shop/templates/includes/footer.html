@@ -1,0 +1,52 @@
+{% load static %}
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <h4 class="footer__title">Інформація</h4>
+        <div class="footer__list">
+          <a href="{% url 'pages:detail' slug='delivery' %}">Способи доставки</a>
+          <a href="{% url 'pages:detail' slug='payment' %}">Способи оплати</a>
+          <a href="{% url 'pages:detail' slug='returns' %}">Обмін і повернення</a>
+          <a href="{% url 'pages:detail' slug='about' %}">Про нас</a>
+        </div>
+      </div>
+      <div>
+        <h4 class="footer__title">Служба підтримки</h4>
+        <div class="footer__list">
+          <a href="{% url 'pages:detail' slug='contacts' %}">Контакти</a>
+          <a href="{% url 'blog:list' %}">Блог</a>
+        </div>
+      </div>
+      <div>
+        <h4 class="footer__title">Акаунт</h4>
+        <div class="footer__list">
+          <a href="{% url 'accounts:login' %}">Вхід</a>
+          <a href="{% url 'accounts:register' %}">Реєстрація</a>
+          <a href="{% url 'orders:history' %}">Історія замовлень</a>
+          <a href="{% url 'wishlist:list' %}">Закладки</a>
+        </div>
+      </div>
+      <div>
+        <h4 class="footer__title">Контакти</h4>
+        <div class="footer__list">
+          <a href="tel:+380989953080">+38 (098) 995-30-80</a>
+          <a href="tel:+380939953080">+38 (093) 995-30-80</a>
+          <a href="mailto:shop@lmm.in.ua">shop@lmm.in.ua</a>
+        </div>
+        <h4 class="footer__title" style="margin-top:16px">Підписка</h4>
+        <form class="footer__subscribe"
+              hx-post="{% url 'pages:subscribe' %}"
+              hx-target="closest form"
+              hx-swap="outerHTML">
+          {% csrf_token %}
+          <input type="email" name="email" placeholder="Ваш email" required>
+          <button class="btn btn--primary btn--sm" type="submit">OK</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      LMM — Інтернет-магазин низьких цін &copy; {% now "Y" %}
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} — Блог LMM{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+  <a href="{% url 'catalog:home' %}">Головна</a>
+  <span class="breadcrumb__sep">/</span>
+  <a href="{% url 'blog:list' %}">Блог</a>
+  <span class="breadcrumb__sep">/</span>
+  <span>{{ post.title|truncatewords:6 }}</span>
+</nav>
+
+<article style="max-width:800px">
+  <h1 class="section__title">{{ post.title }}</h1>
+  <p style="color:var(--color-text-muted);margin-bottom:20px">{{ post.created_at|date:"d.m.Y" }} | {{ post.get_post_type_display }}</p>
+  {% if post.image %}
+  <img src="{{ post.image.url }}" alt="{{ post.title }}" style="border-radius:var(--radius);margin-bottom:20px">
+  {% endif %}
+  <div>{{ post.content|safe }}</div>
+</article>
+{% endblock %}

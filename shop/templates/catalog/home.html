@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}LMM — Інтернет-магазин низьких цін{% endblock %}
+
+{% block content %}
+<section class="section" data-tabs>
+  <div class="home-tabs__nav">
+    <button class="home-tabs__btn home-tabs__btn--active" data-tab-btn="new">Новинки</button>
+    <button class="home-tabs__btn" data-tab-btn="bestsellers">Хіт продажів</button>
+    <button class="home-tabs__btn" data-tab-btn="popular">Популярні</button>
+  </div>
+  <div data-tab-panel="new" class="tabs__panel tabs__panel--active">
+    <div class="product-grid">
+      {% for product in new_products %}
+        {% include "includes/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+  <div data-tab-panel="bestsellers" class="tabs__panel">
+    <div class="product-grid">
+      {% for product in bestsellers %}
+        {% include "includes/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+  <div data-tab-panel="popular" class="tabs__panel">
+    <div class="product-grid">
+      {% for product in popular %}
+        {% include "includes/product_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% for section in category_sections %}
+<section class="section">
+  <div class="section__header">
+    <h2 class="section__title">Новинки: {{ section.category.name }}</h2>
+    <a href="{{ section.category.get_absolute_url }}" class="section__link">Показати ще &rarr;</a>
+  </div>
+  <div class="product-grid">
+    {% for product in section.products %}
+      {% include "includes/product_card.html" %}
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

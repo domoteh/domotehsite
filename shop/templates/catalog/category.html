@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} — LMM{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+  <a href="{% url 'catalog:home' %}">Головна</a>
+  {% for ancestor in category.get_ancestors %}
+  <span class="breadcrumb__sep">/</span>
+  <a href="{{ ancestor.get_absolute_url }}">{{ ancestor.name }}</a>
+  {% endfor %}
+  <span class="breadcrumb__sep">/</span>
+  <span>{{ category.name }}</span>
+</nav>
+
+<h1 class="section__title">{{ category.name }}</h1>
+
+<div class="catalog-layout">
+  <aside class="sidebar">
+    <h3 class="sidebar__title">Фільтри</h3>
+    <form hx-get="{% url 'catalog:category' category.slug %}"
+          hx-target="#product-list"
+          hx-swap="innerHTML"
+          hx-push-url="true">
+      <div class="sidebar__section">
+        <label class="sidebar__label">Ціна</label>
+        <div class="price-range">
+          <input type="number" name="min_price" class="form-input" placeholder="Від" value="{{ request.GET.min_price|default:'' }}">
+          <span>—</span>
+          <input type="number" name="max_price" class="form-input" placeholder="До" value="{{ request.GET.max_price|default:'' }}">
+        </div>
+      </div>
+      {% if brands %}
+      <div class="sidebar__section">
+        <label class="sidebar__label">Бренд</label>
+        <select name="brand" class="form-select">
+          <option value="">Усі</option>
+          {% for b in brands %}
+          <option value="{{ b }}" {% if b == current_brand %}selected{% endif %}>{{ b }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div class="sidebar__section">
+        <label class="sidebar__label">Сортування</label>
+        <select name="sort" class="form-select">
+          <option value="new" {% if current_sort == "new" %}selected{% endif %}>Новинки</option>
+          <option value="price_asc" {% if current_sort == "price_asc" %}selected{% endif %}>Ціна ↑</option>
+          <option value="price_desc" {% if current_sort == "price_desc" %}selected{% endif %}>Ціна ↓</option>
+          <option value="name" {% if current_sort == "name" %}selected{% endif %}>Назва</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn--primary">Застосувати</button>
+    </form>
+
+    {% if category.children.all %}
+    <div class="sidebar__section" style="margin-top:20px">
+      <h4 class="sidebar__label">Підкатегорії</h4>
+      {% for child in category.children.all %}
+      <a href="{{ child.get_absolute_url }}" style="display:block;padding:4px 0;font-size:0.85rem">{{ child.name }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </aside>
+
+  <div id="product-list">
+    {% include "catalog/partials/product_grid.html" %}
+  </div>
+</div>
+{% endblock %}

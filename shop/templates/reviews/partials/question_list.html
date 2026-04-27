@@ -1,0 +1,14 @@
+{% for q in questions %}
+<div class="review">
+  <div class="review__header">
+    <span class="review__author">{{ q.user }}</span>
+    <span class="review__date">{{ q.created_at|date:"d.m.Y" }}</span>
+  </div>
+  <p><strong>Питання:</strong> {{ q.text }}</p>
+  {% if q.answer %}
+  <p style="margin-top:8px"><strong>Відповідь:</strong> {{ q.answer }}</p>
+  {% endif %}
+</div>
+{% empty %}
+<p>Питань поки немає.</p>
+{% endfor %}

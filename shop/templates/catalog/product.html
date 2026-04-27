@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} — LMM{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+  <a href="{% url 'catalog:home' %}">Головна</a>
+  {% if product.category %}
+    {% for ancestor in product.category.get_ancestors %}
+    <span class="breadcrumb__sep">/</span>
+    <a href="{{ ancestor.get_absolute_url }}">{{ ancestor.name }}</a>
+    {% endfor %}
+    <span class="breadcrumb__sep">/</span>
+    <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+  {% endif %}
+  <span class="breadcrumb__sep">/</span>
+  <span>{{ product.name|truncatewords:8 }}</span>
+</nav>
+
+<div class="product-detail">
+  <div class="product-gallery">
+    <div class="product-gallery__main" data-gallery-main>
+      {% with img=product.main_image %}
+      <img src="{{ img.url|default:'https://via.placeholder.com/500x500?text=No+Image' }}" alt="{{ product.name }}">
+      {% endwith %}
+    </div>
+    {% if product.images.count > 1 %}
+    <div class="product-gallery__thumbs">
+      {% for img in product.images.all %}
+      <div class="product-gallery__thumb {% if forloop.first %}product-gallery__thumb--active{% endif %}"
+           data-gallery-thumb="{{ img.url }}">
+        <img src="{{ img.url }}" alt="{{ product.name }} — {{ forloop.counter }}">
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="product-info">
+    <h1 class="product-info__name">{{ product.name }}</h1>
+    <p class="product-info__sku">
+      Код товару: <strong>{{ product.sku }}</strong>
+    </p>
+
+    {% if product.is_available %}
+    <span class="product-info__availability product-info__availability--in-stock">В наявності</span>
+    {% else %}
+    <span class="product-info__availability product-info__availability--out-of-stock">Немає в наявності</span>
+    {% endif %}
+
+    <div class="product-info__price">
+      {{ product.retail_price|floatformat:2 }} грн
+    </div>
+    {% if product.has_discount %}
+    <div class="product-info__old-price">{{ product.old_price|floatformat:2 }} грн</div>
+    {% endif %}
+
+    {% if wholesale %}
+    <div class="product-info__wholesale">
+      <strong>{{ wholesale.min_quantity }} або більше</strong> — {{ wholesale.price|floatformat:2 }} грн
+      {% if not is_wholesale %}
+      <br><small>Гуртова ціна доступна для зареєстрованих клієнтів</small>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if product.is_available %}
+    <div class="product-info__cart">
+      <div class="product-info__qty" data-qty>
+        <button type="button" data-qty-btn="minus">-</button>
+        <input type="number" name="quantity" value="1" min="1" id="product-qty">
+        <button type="button" data-qty-btn="plus">+</button>
+      </div>
+      <button class="btn btn--accent"
+              hx-post="{% url 'cart:add' product.pk %}"
+              hx-include="#product-qty"
+              hx-target="#mini-cart"
+              hx-swap="innerHTML">
+        Купити
+      </button>
+    </div>
+    {% endif %}
+
+    <div class="product-info__extra-actions">
+      <button class="btn btn--outline btn--sm"
+              hx-post="{% url 'wishlist:toggle' product.pk %}"
+              hx-target="#wishlist-counter"
+              hx-swap="innerHTML">
+        &#9825; В закладки
+      </button>
+      <button class="btn btn--outline btn--sm"
+              hx-post="{% url 'compare:toggle' product.pk %}"
+              hx-target="#compare-counter"
+              hx-swap="innerHTML">
+        &#8644; Порівняти
+      </button>
+    </div>
+
+    {% with params=product.params.all|slice:":6" %}
+    {% if params %}
+    <div class="product-info__params">
+      <h3>Короткі характеристики</h3>
+      <table>
+        {% for p in params %}
+        <tr><td>{{ p.name }}</td><td>{{ p.value }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+    {% endwith %}
+  </div>
+</div>
+
+<div class="tabs" data-tabs>
+  <div class="tabs__nav">
+    <button class="tabs__btn tabs__btn--active" data-tab-btn="desc">Опис</button>
+    <button class="tabs__btn" data-tab-btn="specs">Характеристики</button>
+    <button class="tabs__btn" data-tab-btn="reviews">Відгуки ({{ product.reviews.count }})</button>
+    <button class="tabs__btn" data-tab-btn="qa">Питання-відповідь</button>
+  </div>
+
+  <div data-tab-panel="desc" class="tabs__panel tabs__panel--active">
+    {{ product.description|safe }}
+  </div>
+
+  <div data-tab-panel="specs" class="tabs__panel">
+    {% if product.params.all %}
+    <table class="product-info__params" style="width:100%">
+      {% for p in product.params.all %}
+      <tr><td>{{ p.name }}</td><td>{{ p.value }}</td></tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p>Характеристики не вказані.</p>
+    {% endif %}
+  </div>
+
+  <div data-tab-panel="reviews" class="tabs__panel">
+    <div id="reviews-list">
+      {% for review in product.reviews.all %}
+      <div class="review">
+        <div class="review__header">
+          <span class="review__author">{{ review.user }}</span>
+          <span class="review__rating">{% for i in "12345" %}{% if forloop.counter <= review.rating %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}</span>
+        </div>
+        <p>{{ review.text }}</p>
+        <span class="review__date">{{ review.created_at|date:"d.m.Y" }}</span>
+      </div>
+      {% empty %}
+      <p>Відгуків поки немає.</p>
+      {% endfor %}
+    </div>
+    {% if user.is_authenticated %}
+    <h4 style="margin-top:20px">Написати відгук</h4>
+    <form hx-post="{% url 'reviews:add_review' product.pk %}" hx-target="#reviews-list" hx-swap="innerHTML" style="margin-top:12px">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Оцінка</label>
+        <select name="rating" class="form-select">
+          <option value="5">5 — Відмінно</option>
+          <option value="4">4 — Добре</option>
+          <option value="3">3 — Нормально</option>
+          <option value="2">2 — Погано</option>
+          <option value="1">1 — Жахливо</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Текст</label>
+        <textarea name="text" class="form-input" rows="3" required></textarea>
+      </div>
+      <button class="btn btn--primary" type="submit">Надіслати</button>
+    </form>
+    {% else %}
+    <p style="margin-top:12px"><a href="{% url 'accounts:login' %}">Увійдіть</a>, щоб написати відгук.</p>
+    {% endif %}
+  </div>
+
+  <div data-tab-panel="qa" class="tabs__panel">
+    <div id="qa-list">
+      {% for q in product.questions.all %}
+      <div class="review">
+        <div class="review__header">
+          <span class="review__author">{{ q.user }}</span>
+          <span class="review__date">{{ q.created_at|date:"d.m.Y" }}</span>
+        </div>
+        <p><strong>Питання:</strong> {{ q.text }}</p>
+        {% if q.answer %}
+        <p style="margin-top:8px"><strong>Відповідь:</strong> {{ q.answer }}</p>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p>Питань поки немає.</p>
+      {% endfor %}
+    </div>
+    {% if user.is_authenticated %}
+    <form hx-post="{% url 'reviews:add_question' product.pk %}" hx-target="#qa-list" hx-swap="innerHTML" style="margin-top:12px">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Ваше питання</label>
+        <textarea name="text" class="form-input" rows="3" required></textarea>
+      </div>
+      <button class="btn btn--primary" type="submit">Запитати</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if related_products %}
+<section class="section">
+  <h2 class="section__title">Схожі товари</h2>
+  <div class="product-grid">
+    {% for product in related_products %}
+      {% include "includes/product_card.html" %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

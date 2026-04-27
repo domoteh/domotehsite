@@ -1,0 +1,9 @@
+{% load humanize %}
+<div class="product-grid">
+  {% for product in page_obj %}
+    {% include "includes/product_card.html" %}
+  {% empty %}
+    <p>Товарів не знайдено.</p>
+  {% endfor %}
+</div>
+{% include "includes/pagination.html" %}

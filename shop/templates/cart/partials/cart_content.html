@@ -1,0 +1,52 @@
+{% load humanize %}
+{% if cart_items %}
+<table class="cart-table">
+  <thead>
+    <tr><th>Товар</th><th>Ціна</th><th>Кількість</th><th>Сума</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for item in cart_items %}
+    <tr>
+      <td>
+        <div class="cart-table__product">
+          {% if item.product.main_image %}
+          <img src="{{ item.product.main_image.url }}" alt="" class="cart-table__img">
+          {% endif %}
+          <a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
+        </div>
+      </td>
+      <td>{{ item.product.retail_price|floatformat:2 }} грн</td>
+      <td>
+        <div data-qty style="display:inline-flex;align-items:center;border:1px solid var(--color-border);border-radius:var(--radius)">
+          <button type="button" data-qty-btn="minus" style="width:30px;height:30px;border:none;background:var(--color-bg);cursor:pointer">-</button>
+          <input type="number" name="quantity" value="{{ item.quantity }}" min="1"
+                 hx-post="{% url 'cart:update' item.pk %}"
+                 hx-trigger="change"
+                 hx-target="#cart-content"
+                 hx-swap="innerHTML"
+                 style="width:40px;height:30px;border:none;border-left:1px solid var(--color-border);border-right:1px solid var(--color-border);text-align:center">
+          <button type="button" data-qty-btn="plus" style="width:30px;height:30px;border:none;background:var(--color-bg);cursor:pointer">+</button>
+        </div>
+      </td>
+      <td>{{ item.subtotal|floatformat:2 }} грн</td>
+      <td>
+        <button class="btn btn--icon"
+                hx-post="{% url 'cart:remove' item.pk %}"
+                hx-target="#cart-content"
+                hx-swap="innerHTML"
+                title="Видалити">&#10005;</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="cart-summary">
+  <div class="cart-summary__row cart-summary__total">
+    <span>Разом:</span>
+    <span>{{ cart_total|floatformat:2 }} грн</span>
+  </div>
+  <a href="{% url 'orders:checkout' %}" class="btn btn--accent" style="width:100%;margin-top:12px">Оформити замовлення</a>
+</div>
+{% else %}
+<p style="padding:40px 0;text-align:center">Ваш кошик порожній. <a href="{% url 'catalog:home' %}">Повернутися до покупок</a></p>
+{% endif %}

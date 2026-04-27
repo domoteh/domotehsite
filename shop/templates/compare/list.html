@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Порівняння товарів — LMM{% endblock %}
+
+{% block content %}
+<h1 class="section__title">Порівняння товарів</h1>
+{% if items %}
+<div style="overflow-x:auto">
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Параметр</th>
+        {% for item in items %}
+        <th>
+          <a href="{{ item.product.get_absolute_url }}">
+            {% if item.product.main_image %}
+            <img src="{{ item.product.main_image.url }}" alt="" style="width:100px;height:100px;object-fit:contain;margin:0 auto 8px">
+            {% endif %}
+            {{ item.product.name|truncatewords:5 }}
+          </a>
+        </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Ціна</td>{% for item in items %}<td>{{ item.product.retail_price|floatformat:2 }} грн</td>{% endfor %}</tr>
+      <tr><td>Наявність</td>{% for item in items %}<td>{% if item.product.is_available %}Так{% else %}Ні{% endif %}</td>{% endfor %}</tr>
+      <tr><td>Бренд</td>{% for item in items %}<td>{{ item.product.brand|default:"—" }}</td>{% endfor %}</tr>
+      {% for item in items %}
+        {% for param in item.product.params.all %}
+          {% if forloop.parentloop.first %}
+          <tr>
+            <td>{{ param.name }}</td>
+            {% for citem in items %}
+            <td>
+              {% for p in citem.product.params.all %}
+                {% if p.name == param.name %}{{ p.value }}{% endif %}
+              {% endfor %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p style="padding:40px 0;text-align:center">Нічого не додано до порівняння.</p>
+{% endif %}
+{% endblock %}

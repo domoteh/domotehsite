@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Мої замовлення — LMM{% endblock %}
+
+{% block content %}
+<h1 class="section__title">Мої замовлення</h1>
+{% if orders %}
+<table class="cart-table">
+  <thead><tr><th>#</th><th>Дата</th><th>Статус</th><th>Сума</th><th></th></tr></thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td>{{ order.pk }}</td>
+      <td>{{ order.created_at|date:"d.m.Y" }}</td>
+      <td>{{ order.get_status_display }}</td>
+      <td>{{ order.total|floatformat:2 }} грн</td>
+      <td><a href="{% url 'orders:detail' order.pk %}" class="btn btn--outline btn--sm">Деталі</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p style="padding:40px 0;text-align:center">У вас поки немає замовлень.</p>
+{% endif %}
+{% endblock %}

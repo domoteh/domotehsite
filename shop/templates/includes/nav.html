@@ -1,0 +1,26 @@
+{% load mptt_tags %}
+<nav class="nav">
+  <div class="container">
+    <div class="nav__inner" data-nav-inner>
+      {% for cat in menu_categories %}
+      <div class="nav__item">
+        <a href="{{ cat.get_absolute_url }}" class="nav__link">{{ cat.name }}</a>
+        {% if cat.children.all %}
+        <div class="mega-menu">
+          {% for child in cat.children.all %}
+          <div class="mega-menu__column">
+            <a href="{{ child.get_absolute_url }}" class="mega-menu__title">{{ child.name }}</a>
+            <div class="mega-menu__list">
+              {% for sub in child.children.all %}
+              <a href="{{ sub.get_absolute_url }}">{{ sub.name }}</a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</nav>

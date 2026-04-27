@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Замовлення оформлено — LMM{% endblock %}
+
+{% block content %}
+<div style="text-align:center;padding:60px 0">
+  <h1 class="section__title">Замовлення #{{ order.pk }} оформлено!</h1>
+  <p style="margin:16px 0;color:var(--color-text-muted)">Дякуємо за замовлення. Ми зв'яжемося з вами найближчим часом.</p>
+  <p>Спосіб оплати: <strong>{{ order.get_payment_method_display }}</strong></p>
+  <p>Спосіб доставки: <strong>{{ order.get_delivery_method_display }}</strong></p>
+  <p style="margin-top:8px">Сума: <strong>{{ order.total|floatformat:2 }} грн</strong></p>
+
+  {% if order.payment_method == "liqpay" %}
+  <div style="margin-top:24px">
+    <p>Для оплати через LiqPay натисніть кнопку нижче:</p>
+    <a href="#" class="btn btn--primary" style="margin-top:8px">Оплатити через LiqPay</a>
+  </div>
+  {% elif order.payment_method == "monobank" %}
+  <div style="margin-top:24px">
+    <p>Для оплати через MonoBank натисніть кнопку нижче:</p>
+    <a href="#" class="btn btn--primary" style="margin-top:8px">Оплатити через MonoBank</a>
+  </div>
+  {% elif order.payment_method == "card_manual" %}
+  <div style="margin-top:24px;background:var(--color-bg);padding:20px;border-radius:var(--radius)">
+    <p><strong>Реквізити для оплати:</strong></p>
+    <p>Картка: XXXX XXXX XXXX XXXX (ПриватБанк)</p>
+    <p>Сума: {{ order.total|floatformat:2 }} грн</p>
+    <p>Призначення: Замовлення #{{ order.pk }}</p>
+  </div>
+  {% endif %}
+
+  <a href="{% url 'catalog:home' %}" class="btn btn--outline" style="margin-top:24px">Повернутися на головну</a>
+</div>
+{% endblock %}

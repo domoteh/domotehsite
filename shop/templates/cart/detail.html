@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Кошик — LMM{% endblock %}
+
+{% block content %}
+<h1 class="section__title">Кошик</h1>
+
+<div id="cart-content">
+  {% include "cart/partials/cart_content.html" %}
+</div>
+{% endblock %}

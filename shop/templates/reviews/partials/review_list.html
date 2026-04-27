@@ -1,0 +1,12 @@
+{% for review in reviews %}
+<div class="review">
+  <div class="review__header">
+    <span class="review__author">{{ review.user }}</span>
+    <span class="review__rating">{% for i in "12345" %}{% if forloop.counter <= review.rating %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}</span>
+  </div>
+  <p>{{ review.text }}</p>
+  <span class="review__date">{{ review.created_at|date:"d.m.Y" }}</span>
+</div>
+{% empty %}
+<p>Відгуків поки немає.</p>
+{% endfor %}

@@ -1,0 +1,14 @@
+Django>=5.1,<5.2
+django-mptt>=0.16
+django-environ>=0.11
+django-storages>=1.14
+boto3>=1.35
+Pillow>=10.4
+whitenoise>=6.7
+gunicorn>=23.0
+celery>=5.4
+redis>=5.2
+liqpay-python
+requests>=2.32
+psycopg[binary]>=3.2
+django-htmx>=1.19

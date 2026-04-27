@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} — LMM{% endblock %}
+
+{% block content %}
+<h1 class="section__title">{{ page.title }}</h1>
+<div class="checkout-section" style="max-width:800px">
+  {{ page.content|safe }}
+</div>
+{% endblock %}

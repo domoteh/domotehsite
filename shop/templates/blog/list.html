@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Блог — LMM{% endblock %}
+
+{% block content %}
+<h1 class="section__title">Блог</h1>
+<div style="margin-bottom:16px">
+  <a href="{% url 'blog:list' %}" class="btn btn--sm {% if not request.GET.type %}btn--primary{% else %}btn--outline{% endif %}">Усі</a>
+  <a href="{% url 'blog:list' %}?type=promo" class="btn btn--sm {% if request.GET.type == 'promo' %}btn--primary{% else %}btn--outline{% endif %}">Акції</a>
+  <a href="{% url 'blog:list' %}?type=article" class="btn btn--sm {% if request.GET.type == 'article' %}btn--primary{% else %}btn--outline{% endif %}">Статті</a>
+  <a href="{% url 'blog:list' %}?type=video" class="btn btn--sm {% if request.GET.type == 'video' %}btn--primary{% else %}btn--outline{% endif %}">Відеоогляди</a>
+</div>
+<div class="blog-grid">
+  {% for post in page_obj %}
+  <article class="blog-card">
+    {% if post.image %}
+    <div class="blog-card__image">
+      <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy">
+    </div>
+    {% endif %}
+    <div class="blog-card__body">
+      <h2 class="blog-card__title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+      <p class="blog-card__date">{{ post.created_at|date:"d.m.Y" }}</p>
+    </div>
+  </article>
+  {% empty %}
+  <p>Публікацій поки немає.</p>
+  {% endfor %}
+</div>
+{% include "includes/pagination.html" %}
+{% endblock %}
