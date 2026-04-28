@@ -37,6 +37,23 @@
     document.querySelector("[data-nav-inner]")?.classList.toggle("nav__inner--open");
   });
 
+  /* Mobile subcategory toggle */
+  document.querySelectorAll("[data-nav-item]").forEach((item) => {
+    const link = item.querySelector(".nav__link");
+    const menu = item.querySelector(".mega-menu");
+    if (!menu) return;
+    link.addEventListener("click", (e) => {
+      if (window.innerWidth < 1025 || "ontouchstart" in window) {
+        e.preventDefault();
+        const opening = !item.classList.contains("nav__item--open");
+        document.querySelectorAll("[data-nav-item]").forEach((other) => {
+          other.classList.remove("nav__item--open");
+        });
+        if (opening) item.classList.add("nav__item--open");
+      }
+    });
+  });
+
   /* Product gallery */
   document.addEventListener("click", (e) => {
     const thumb = e.target.closest("[data-gallery-thumb]");
@@ -49,6 +66,37 @@
       .forEach((t) => t.classList.remove("product-gallery__thumb--active"));
     thumb.classList.add("product-gallery__thumb--active");
   });
+
+  /* Nav scroll arrows */
+  const navInner = document.querySelector("[data-nav-inner]");
+  if (navInner) {
+    const btnPrev = document.querySelector("[data-nav-prev]");
+    const btnNext = document.querySelector("[data-nav-next]");
+    const step = () => Math.round(navInner.clientWidth * 0.75);
+
+    const updateNavArrows = () => {
+      if (!btnPrev || !btnNext) return;
+      const scrollable = navInner.scrollWidth > navInner.clientWidth + 1;
+      const atStart = navInner.scrollLeft <= 0;
+      const atEnd = navInner.scrollLeft + navInner.clientWidth >= navInner.scrollWidth - 1;
+      btnPrev.toggleAttribute("hidden", !scrollable || atStart);
+      btnNext.toggleAttribute("hidden", !scrollable || atEnd);
+    };
+
+    btnPrev?.addEventListener("click", () => {
+      navInner.scrollBy({ left: -step(), behavior: "smooth" });
+    });
+    btnNext?.addEventListener("click", () => {
+      navInner.scrollBy({ left: step(), behavior: "smooth" });
+    });
+
+    navInner.addEventListener("scroll", updateNavArrows, { passive: true });
+    window.addEventListener("load", updateNavArrows);
+
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(updateNavArrows).observe(navInner);
+    }
+  }
 
   /* HTMX events: restore tabs after swap */
   document.body.addEventListener("htmx:afterSwap", () => {

@@ -13,7 +13,7 @@ def homepage(request: HttpRequest) -> HttpResponse:
 
     top_categories = Category.objects.filter(level=0, is_active=True)
     category_sections = []
-    for cat in top_categories[:4]:
+    for cat in top_categories:
         products = Product.objects.filter(
             category__in=cat.get_descendants(include_self=True),
             is_available=True,

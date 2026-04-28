@@ -3,8 +3,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+admin.site.site_header = "Адміністрування магазину"
+admin.site.site_title = "Магазин"
+admin.site.index_title = "Панель керування"
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("ckeditor5/", include("django_ckeditor_5.urls")),
     path("", include("apps.catalog.urls")),
     path("cart/", include("apps.cart.urls")),
     path("accounts/", include("apps.accounts.urls")),

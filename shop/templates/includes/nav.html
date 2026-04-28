@@ -1,26 +1,33 @@
-{% load mptt_tags %}
 <nav class="nav">
-  <div class="container">
+  <div class="container nav__container">
+    <button class="nav__arrow nav__arrow--left" data-nav-prev aria-label="Попередні категорії" hidden>&#8249;</button>
     <div class="nav__inner" data-nav-inner>
       {% for cat in menu_categories %}
-      <div class="nav__item">
+      <div class="nav__item" data-nav-item>
         <a href="{{ cat.get_absolute_url }}" class="nav__link">{{ cat.name }}</a>
-        {% if cat.children.all %}
+        {% with children=cat.children.all %}
+        {% if children %}
         <div class="mega-menu">
-          {% for child in cat.children.all %}
+          {% for child in children %}
           <div class="mega-menu__column">
             <a href="{{ child.get_absolute_url }}" class="mega-menu__title">{{ child.name }}</a>
+            {% with subs=child.children.all %}
+            {% if subs %}
             <div class="mega-menu__list">
-              {% for sub in child.children.all %}
+              {% for sub in subs %}
               <a href="{{ sub.get_absolute_url }}">{{ sub.name }}</a>
               {% endfor %}
             </div>
+            {% endif %}
+            {% endwith %}
           </div>
           {% endfor %}
         </div>
         {% endif %}
+        {% endwith %}
       </div>
       {% endfor %}
     </div>
+    <button class="nav__arrow nav__arrow--right" data-nav-next aria-label="Наступні категорії">&#8250;</button>
   </div>
 </nav>

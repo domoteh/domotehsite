@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "mptt",
     "django_htmx",
     "storages",
+    "django_ckeditor_5",
     # Project apps
     "apps.accounts",
     "apps.catalog",
@@ -106,6 +107,36 @@ LOGOUT_REDIRECT_URL = "/"
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 CSV_DATA_DIR = BASE_DIR.parent / "output"
+
+CKEDITOR_5_CONFIGS = {
+    "default": {
+        "toolbar": {
+            "items": [
+                "heading", "|",
+                "bold", "italic", "underline", "strikethrough", "|",
+                "link", "bulletedList", "numberedList", "blockQuote", "|",
+                "imageUpload", "mediaEmbed", "|",
+                "insertTable", "horizontalLine", "|",
+                "undo", "redo",
+            ],
+        },
+        "image": {
+            "toolbar": [
+                "imageStyle:inline",
+                "imageStyle:block",
+                "imageStyle:side",
+                "|",
+                "toggleImageCaption",
+                "imageTextAlternative",
+            ],
+        },
+        "table": {
+            "contentToolbar": ["tableColumn", "tableRow", "mergeTableCells"],
+        },
+        "height": "400px",
+        "width": "100%",
+    },
+}
 
 # Payment settings
 LIQPAY_PUBLIC_KEY = env("LIQPAY_PUBLIC_KEY", default="")

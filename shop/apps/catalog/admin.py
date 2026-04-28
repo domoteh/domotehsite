@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db import models
+from django_ckeditor_5.widgets import CKEditor5Widget
 from mptt.admin import DraggableMPTTAdmin
 
 from .models import Category, Product, ProductImage, ProductParam, WholesalePrice
@@ -36,3 +38,6 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductImageInline, ProductParamInline, WholesalePriceInline]
     list_editable = ("is_available", "is_new", "is_bestseller")
     raw_id_fields = ("category",)
+    formfield_overrides = {
+        models.TextField: {"widget": CKEditor5Widget(config_name="default")},
+    }

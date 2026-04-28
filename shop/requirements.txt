@@ -12,3 +12,5 @@ liqpay-python
 requests>=2.32
 psycopg[binary]>=3.2
 django-htmx>=1.19
+django-ckeditor-5>=0.2.20
+nh3>=0.2

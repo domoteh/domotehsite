@@ -10,8 +10,10 @@
   {% block extra_css %}{% endblock %}
 </head>
 <body>
-  {% include "includes/header.html" %}
-  {% include "includes/nav.html" %}
+  <div class="site-header-wrap">
+    {% include "includes/header.html" %}
+    {% include "includes/nav.html" %}
+  </div>
 
   <main class="container">
     {% if messages %}
