@@ -15,7 +15,7 @@ class CheckoutForm(forms.ModelForm):
         widgets = {
             "first_name": forms.TextInput(attrs={"class": "form-input", "placeholder": "Ім'я"}),
             "last_name": forms.TextInput(attrs={"class": "form-input", "placeholder": "Прізвище"}),
-            "email": forms.EmailInput(attrs={"class": "form-input", "placeholder": "Email"}),
+            "email": forms.EmailInput(attrs={"class": "form-input", "placeholder": "Електронна пошта"}),
             "phone": forms.TextInput(attrs={"class": "form-input", "placeholder": "+380..."}),
             "delivery_method": forms.Select(attrs={"class": "form-select"}),
             "delivery_address": forms.Textarea(attrs={"class": "form-input", "rows": 2}),

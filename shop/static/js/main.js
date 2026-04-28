@@ -30,6 +30,10 @@
     if (btn.dataset.qtyBtn === "plus") val++;
     if (btn.dataset.qtyBtn === "minus" && val > 1) val--;
     input.value = val;
+    clearTimeout(input._qtyTimer);
+    input._qtyTimer = setTimeout(() => {
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }, 300);
   });
 
   /* Mobile menu toggle */
@@ -97,6 +101,79 @@
       new ResizeObserver(updateNavArrows).observe(navInner);
     }
   }
+
+  /* HTMX: inject CSRF token into every non-GET request */
+  const getCsrfToken = () =>
+    document.cookie
+      .split(";")
+      .find((c) => c.trim().startsWith("csrftoken="))
+      ?.split("=")[1] ?? "";
+
+  document.body.addEventListener("htmx:configRequest", (evt) => {
+    if (evt.detail.verb !== "get") {
+      evt.detail.headers["X-CSRFToken"] = getCsrfToken();
+    }
+  });
+
+  /* HTMX: cart toast notification */
+  const showCartToast = (msg) => {
+    const toast = document.getElementById("cart-toast");
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add("cart-toast--visible");
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove("cart-toast--visible"), 2500);
+  };
+
+  /* Cart button pulse on click */
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-cart-btn]");
+    if (!btn) return;
+    btn.classList.remove("btn--cart-pulse");
+    void btn.offsetWidth; // reflow to restart animation
+    btn.classList.add("btn--cart-pulse");
+    btn.addEventListener("animationend", () => btn.classList.remove("btn--cart-pulse"), { once: true });
+  });
+
+  /* Toggle button active state (wishlist / compare) */
+  const WISHLIST_LABELS = { active: "\u2665 \u0412 \u0437\u0430\u043a\u043b\u0430\u0434\u043a\u0430\u0445", inactive: "\u2661 \u0412 \u0437\u0430\u043a\u043b\u0430\u0434\u043a\u0438" };
+  const COMPARE_LABELS  = { active: "\u21C4 \u041f\u043e\u0440\u0456\u0432\u043d\u044e\u0454\u0442\u044c\u0441\u044f",  inactive: "\u21C4 \u041f\u043e\u0440\u0456\u0432\u043d\u044f\u0442\u0438" };
+
+  document.body.addEventListener("htmx:afterRequest", (evt) => {
+    const url  = evt.detail.requestConfig?.path ?? "";
+    const verb = evt.detail.requestConfig?.verb ?? "";
+    const ok   = evt.detail.successful;
+
+    if (ok && verb === "post" && /\/cart\/add\//.test(url)) {
+      showCartToast("Товар додано до кошика");
+    }
+
+    if (ok && verb === "post" && /\/wishlist\//.test(url)) {
+      const btn = document.querySelector("[data-toggle-btn='wishlist']");
+      if (!btn) return;
+      const isActive = btn.classList.toggle("btn--active");
+      const icon  = btn.querySelector("[data-toggle-icon]");
+      const label = btn.querySelector("[data-toggle-label]");
+      if (icon)  icon.textContent  = isActive ? "\u2665" : "\u2661";
+      if (label) label.textContent = isActive ? "\u0412 \u0437\u0430\u043a\u043b\u0430\u0434\u043a\u0430\u0445" : "\u0412 \u0437\u0430\u043a\u043b\u0430\u0434\u043a\u0438";
+      if (isActive) {
+        btn.classList.remove("btn--heart-pulse");
+        void btn.offsetWidth;
+        btn.classList.add("btn--heart-pulse");
+        btn.addEventListener("animationend", () => btn.classList.remove("btn--heart-pulse"), { once: true });
+      }
+    }
+
+    if (ok && verb === "post" && /\/compare\//.test(url)) {
+      const btn = document.querySelector("[data-toggle-btn='compare']");
+      if (!btn) return;
+      btn.classList.toggle("btn--active");
+      const label = btn.querySelector("[data-toggle-label]");
+      if (label) label.textContent = btn.classList.contains("btn--active")
+        ? "\u041f\u043e\u0440\u0456\u0432\u043d\u044e\u0454\u0442\u044c\u0441\u044f"
+        : "\u041f\u043e\u0440\u0456\u0432\u043d\u044f\u0442\u0438";
+    }
+  });
 
   /* HTMX events: restore tabs after swap */
   document.body.addEventListener("htmx:afterSwap", () => {

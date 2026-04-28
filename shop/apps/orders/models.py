@@ -16,7 +16,7 @@ class Order(models.Model):
     class DeliveryMethod(models.TextChoices):
         NOVA_POSHTA = "nova_poshta", "Нова Пошта"
         UKRPOSHTA = "ukrposhta", "Укрпошта"
-        DELIVERY = "delivery", "Delivery"
+        DELIVERY = "delivery", "Доставка кур'єром"
         MEEST = "meest", "Meest"
         ROZETKA = "rozetka", "Rozetka Delivery"
         PICKUP = "pickup", "Самовивіз"
@@ -34,7 +34,7 @@ class Order(models.Model):
     status = models.CharField("Статус", max_length=20, choices=Status.choices, default=Status.NEW)
     first_name = models.CharField("Ім'я", max_length=100)
     last_name = models.CharField("Прізвище", max_length=100)
-    email = models.EmailField("Email")
+    email = models.EmailField("Електронна пошта")
     phone = models.CharField("Телефон", max_length=20)
     delivery_method = models.CharField("Доставка", max_length=20, choices=DeliveryMethod.choices)
     delivery_address = models.TextField("Адреса доставки", blank=True)

@@ -32,15 +32,17 @@
       <div class="header__actions">
         <a href="{% url 'compare:list' %}" class="header__action" title="Порівняння">
           <span class="header__action-icon">&#8644;</span>
+          <span id="compare-counter"></span>
           <span>Порівняння</span>
         </a>
         <a href="{% url 'wishlist:list' %}" class="header__action" title="Закладки">
           <span class="header__action-icon">&#9825;</span>
+          <span id="wishlist-counter"></span>
           <span>Закладки</span>
         </a>
-        <a href="{% url 'cart:detail' %}" class="header__action" title="Кошик" id="mini-cart">
+        <a href="{% url 'cart:detail' %}" class="header__action" title="Кошик">
           <span class="header__action-icon">&#128722;</span>
-          {% include "cart/partials/mini_cart.html" %}
+          <span id="mini-cart">{% include "cart/partials/mini_cart.html" %}</span>
         </a>
       </div>
     </div>

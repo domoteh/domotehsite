@@ -3,6 +3,9 @@ from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
+from apps.compare.models import CompareItem
+from apps.wishlist.models import WishlistItem
+
 from .models import Category, Product
 
 
@@ -89,11 +92,26 @@ def product_detail(request: HttpRequest, slug: str) -> HttpResponse:
         category=product.category, is_available=True
     ).exclude(pk=product.pk)[:15]
 
+    in_wishlist = (
+        request.user.is_authenticated
+        and WishlistItem.objects.filter(user=request.user, product=product).exists()
+    )
+
+    session_key = request.session.session_key
+    if request.user.is_authenticated:
+        in_compare = CompareItem.objects.filter(user=request.user, product=product).exists()
+    elif session_key:
+        in_compare = CompareItem.objects.filter(session_key=session_key, user=None, product=product).exists()
+    else:
+        in_compare = False
+
     return render(request, "catalog/product.html", {
         "product": product,
         "wholesale": wholesale,
         "is_wholesale": is_wholesale,
         "related_products": related,
+        "in_wishlist": in_wishlist,
+        "in_compare": in_compare,
     })
 
 

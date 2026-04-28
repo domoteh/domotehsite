@@ -7,7 +7,7 @@
 <div class="checkout-section" style="max-width:600px">
   <table style="width:100%">
     <tr><td style="padding:8px;color:var(--color-text-muted)">Ім'я</td><td style="padding:8px">{{ user.get_full_name|default:user.username }}</td></tr>
-    <tr><td style="padding:8px;color:var(--color-text-muted)">Email</td><td style="padding:8px">{{ user.email }}</td></tr>
+    <tr><td style="padding:8px;color:var(--color-text-muted)">Електронна пошта</td><td style="padding:8px">{{ user.email }}</td></tr>
     <tr><td style="padding:8px;color:var(--color-text-muted)">Телефон</td><td style="padding:8px">{{ user.phone|default:"—" }}</td></tr>
     <tr><td style="padding:8px;color:var(--color-text-muted)">Гуртовий клієнт</td><td style="padding:8px">{% if user.is_wholesale %}Так{% else %}Ні{% endif %}</td></tr>
     {% if user.company_name %}

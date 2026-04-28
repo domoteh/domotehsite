@@ -73,27 +73,32 @@
         <button type="button" data-qty-btn="plus">+</button>
       </div>
       <button class="btn btn--accent"
+              data-cart-btn
               hx-post="{% url 'cart:add' product.pk %}"
               hx-include="#product-qty"
               hx-target="#mini-cart"
               hx-swap="innerHTML">
-        Купити
+        <span data-cart-btn-icon>&#128722;</span> Купити
       </button>
     </div>
     {% endif %}
 
     <div class="product-info__extra-actions">
-      <button class="btn btn--outline btn--sm"
+      <button class="btn btn--outline btn--sm{% if in_wishlist %} btn--active{% endif %}"
+              data-toggle-btn="wishlist"
               hx-post="{% url 'wishlist:toggle' product.pk %}"
               hx-target="#wishlist-counter"
               hx-swap="innerHTML">
-        &#9825; В закладки
+        <span data-toggle-icon>{% if in_wishlist %}&#9829;{% else %}&#9825;{% endif %}</span>
+        <span data-toggle-label>{% if in_wishlist %}В закладках{% else %}В закладки{% endif %}</span>
       </button>
-      <button class="btn btn--outline btn--sm"
+      <button class="btn btn--outline btn--sm{% if in_compare %} btn--active{% endif %}"
+              data-toggle-btn="compare"
               hx-post="{% url 'compare:toggle' product.pk %}"
               hx-target="#compare-counter"
               hx-swap="innerHTML">
-        &#8644; Порівняти
+        <span data-toggle-icon>&#8644;</span>
+        <span data-toggle-label>{% if in_compare %}Порівнюється{% else %}Порівняти{% endif %}</span>
       </button>
     </div>
 

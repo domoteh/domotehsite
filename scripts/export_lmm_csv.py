@@ -7,6 +7,7 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from uk_translations import CATEGORIES_UK, PARAMS_UK
 
 ROOT = Path(__file__).resolve().parents[1]
 XML_PATH = ROOT / "data" / "raw" / "prom.xml"
@@ -44,11 +45,12 @@ def main() -> None:
 
     categories_rows: list[dict[str, str]] = []
     for category in categories_node.findall("category"):
+        raw_name = normalize_text(category.text)
         categories_rows.append(
             {
                 "category_id": normalize_text(category.get("id")),
                 "parent_id": normalize_text(category.get("parentId")),
-                "category_name": normalize_text(category.text),
+                "category_name": CATEGORIES_UK.get(raw_name, raw_name),
             }
         )
 
@@ -68,7 +70,10 @@ def main() -> None:
             duplicate_offer_ids.append(offer_id)
         offer_ids.add(offer_id)
 
-        name = normalize_text(offer.findtext("name"))
+        name = (
+            normalize_text(offer.findtext("name_ua"))
+            or normalize_text(offer.findtext("name"))
+        )
         url = normalize_text(offer.findtext("url"))
         price = normalize_text(offer.findtext("price"))
         old_price = normalize_text(offer.findtext("oldprice"))
@@ -77,7 +82,10 @@ def main() -> None:
         vendor = normalize_text(offer.findtext("vendor"))
         model = normalize_text(offer.findtext("model"))
         sku = normalize_text(offer.findtext("vendorCode"))
-        description = normalize_text(offer.findtext("description"))
+        description = (
+            normalize_text(offer.findtext("description_ua"))
+            or normalize_text(offer.findtext("description"))
+        )
         availability = normalize_text(offer.get("available"))
 
         products_rows.append(
@@ -110,10 +118,11 @@ def main() -> None:
             )
 
         for param in offer.findall("param"):
+            raw_param_name = normalize_text(param.get("name"))
             params_rows.append(
                 {
                     "offer_id": offer_id,
-                    "param_name": normalize_text(param.get("name")),
+                    "param_name": PARAMS_UK.get(raw_param_name, raw_param_name),
                     "param_value": normalize_text(param.text),
                 }
             )
