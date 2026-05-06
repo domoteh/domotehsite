@@ -1,0 +1,356 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Масова зміна цін — Адмін{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  .bpa-wrap {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: 16px;
+  }
+  @media (max-width: 900px) {
+    .bpa-wrap { grid-template-columns: 1fr; }
+  }
+
+  .bpa-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 24px;
+  }
+  .bpa-card h2 {
+    margin: 0 0 18px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+  }
+
+  .bpa-field { margin-bottom: 16px; }
+  .bpa-field label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #444;
+  }
+
+  .bpa-radio-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .bpa-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 400;
+    font-size: 13px;
+    cursor: pointer;
+    background: #f5f5f5;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    padding: 7px 14px;
+    transition: border-color .15s, background .15s;
+    white-space: nowrap;
+  }
+  .bpa-radio-group input[type="radio"] { display: none; }
+  .bpa-radio-group input[type="radio"]:checked + span {
+    color: inherit;
+  }
+  .bpa-radio-group label:has(input:checked) {
+    border-color: #447e9b;
+    background: #e8f3f8;
+    font-weight: 600;
+  }
+
+  .bpa-input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  .bpa-input:focus { outline: none; border-color: #447e9b; }
+
+  .bpa-select {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 13px;
+    line-height: 1.4;
+    height: auto;
+    min-height: 38px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #fff;
+    box-sizing: border-box;
+    overflow: visible;
+    -webkit-appearance: auto;
+    appearance: auto;
+  }
+
+  .bpa-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .bpa-checkbox-row input { cursor: pointer; }
+
+  .bpa-confirm-row {
+    border: 2px solid #e0b300;
+    background: #fffbe6;
+    border-radius: 6px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .bpa-confirm-row input { cursor: pointer; width: 16px; height: 16px; }
+
+  .bpa-errors {
+    background: #fde8e8;
+    border: 1px solid #f5a0a0;
+    border-radius: 5px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #b71c1c;
+  }
+  .bpa-errors ul { margin: 4px 0 0; padding-left: 16px; }
+
+  .bpa-scope-badge {
+    display: inline-block;
+    background: #447e9b;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 3px 12px;
+    margin-bottom: 14px;
+  }
+
+  .bpa-btn-submit {
+    width: 100%;
+    background: #447e9b;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 0;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 18px;
+    transition: background .15s;
+  }
+  .bpa-btn-submit:hover { background: #325d73; }
+
+  .bpa-btn-cancel {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #888;
+    text-decoration: none;
+  }
+  .bpa-btn-cancel:hover { color: #333; }
+
+  /* Preview table */
+  .bpa-preview h2 { margin: 0 0 12px; font-size: 15px; }
+  .bpa-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .bpa-table th {
+    background: #f5f5f5;
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+    white-space: nowrap;
+  }
+  .bpa-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+  .bpa-table tr:last-child td { border-bottom: none; }
+  .bpa-table .price { font-weight: 600; color: #2e7d32; }
+  .bpa-preview-note {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #888;
+  }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    .bpa-card { background: #1e1e2e; border-color: #333; }
+    .bpa-card h2 { color: #ddd; border-color: #333; }
+    .bpa-field label { color: #ccc; }
+    .bpa-radio-group label { background: #2a2a3e; border-color: #444; color: #ccc; }
+    .bpa-radio-group label:has(input:checked) { background: #1c3a4a; border-color: #447e9b; }
+    .bpa-input, .bpa-select { background: #2a2a3e; border-color: #444; color: #ddd; }
+    .bpa-table th { background: #2a2a3e; color: #ccc; }
+    .bpa-table td { color: #ccc; border-color: #333; }
+    .bpa-table th { border-color: #444; }
+  }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Головна</a>
+  &rsaquo; <a href="{% url 'admin:catalog_product_changelist' %}">Товари</a>
+  &rsaquo; Масова зміна цін
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>💰 Масова зміна цін</h1>
+
+<div class="bpa-wrap">
+
+  {# ─── FORM ─── #}
+  <div class="bpa-card">
+    <h2>Параметри зміни</h2>
+
+    <span class="bpa-scope-badge">{{ scope_label }}</span>
+
+    {% if form.errors %}
+    <div class="bpa-errors">
+      <strong>Виправте помилки:</strong>
+      <ul>
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li><b>{{ field.label }}:</b> {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="ids" value="{{ ids_param }}">
+
+      <div class="bpa-field">
+        <label>Тип зміни</label>
+        <div class="bpa-radio-group">
+          {% for radio in form.change_type %}
+          <label>
+            {{ radio.tag }}
+            <span>{{ radio.choice_label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="bpa-field">
+        <label>Напрямок</label>
+        <div class="bpa-radio-group">
+          {% for radio in form.direction %}
+          <label>
+            {{ radio.tag }}
+            <span>{{ radio.choice_label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="bpa-field">
+        <label for="{{ form.value.id_for_label }}">Значення</label>
+        <input
+          type="number"
+          class="bpa-input"
+          id="{{ form.value.id_for_label }}"
+          name="{{ form.value.html_name }}"
+          value="{{ form.value.value|default:'' }}"
+          step="0.01"
+          min="0.01"
+          placeholder="Введіть значення"
+          required
+        >
+      </div>
+
+      <div class="bpa-field">
+        <label for="{{ form.rounding.id_for_label }}">Округлення результату</label>
+        <select class="bpa-select" id="{{ form.rounding.id_for_label }}" name="{{ form.rounding.html_name }}">
+          {% for val, label in form.fields.rounding.choices %}
+          <option value="{{ val }}" {% if form.rounding.value == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="bpa-field">
+        <label class="bpa-checkbox-row">
+          {{ form.apply_to_wholesale }}
+          {{ form.apply_to_wholesale.label }}
+        </label>
+      </div>
+
+      <div class="bpa-field">
+        <label class="bpa-checkbox-row">
+          {{ form.apply_to_old_price }}
+          {{ form.apply_to_old_price.label }}
+        </label>
+      </div>
+
+      <div class="bpa-field">
+        <label class="bpa-confirm-row">
+          {{ form.confirm }}
+          ⚠️ {{ form.confirm.label }}
+        </label>
+      </div>
+
+      <button type="submit" class="bpa-btn-submit">Застосувати зміну цін</button>
+      <a href="{% url 'admin:catalog_product_changelist' %}" class="bpa-btn-cancel">← Скасувати</a>
+    </form>
+  </div>
+
+  {# ─── PREVIEW ─── #}
+  <div class="bpa-card bpa-preview">
+    <h2>Попередній перегляд (перші 20 з {{ total_count }})</h2>
+    <table class="bpa-table">
+      <thead>
+        <tr>
+          <th>Назва</th>
+          <th>SKU</th>
+          <th>Поточна ціна</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in preview %}
+        <tr>
+          <td>
+            <a href="{% url 'admin:catalog_product_change' p.pk %}" target="_blank">{{ p.name|truncatechars:50 }}</a>
+          </td>
+          <td>{{ p.sku|default:"—" }}</td>
+          <td class="price">{{ p.retail_price }} грн</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">Немає товарів</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if total_count > 20 %}
+    <p class="bpa-preview-note">… і ще {{ total_count|add:"-20" }} товарів поза переглядом</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

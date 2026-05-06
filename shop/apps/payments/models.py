@@ -11,9 +11,7 @@ class Payment(models.Model):
         REFUNDED = "refunded", "Повернено"
 
     class Provider(models.TextChoices):
-        LIQPAY = "liqpay", "LiqPay"
         MONOBANK = "monobank", "MonoBank"
-        CARD_MANUAL = "card_manual", "На картку"
         COD = "cod", "Накладений платіж"
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="payments")

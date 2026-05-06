@@ -4,6 +4,30 @@ from django_ckeditor_5.fields import CKEditor5Field
 from .utils import sanitize_html
 
 
+class SiteSettings(models.Model):
+    phone_1 = models.CharField("Телефон 1", max_length=20, blank=True)
+    phone_2 = models.CharField("Телефон 2", max_length=20, blank=True)
+    email = models.EmailField("Email", blank=True)
+    shop_name = models.CharField("Назва магазину", max_length=255, default="DOMOTEH")
+    shop_tagline = models.CharField("Слоган", max_length=255, default="Інтернет-магазин низьких цін")
+
+    class Meta:
+        verbose_name = "Налаштування сайту"
+        verbose_name_plural = "Налаштування сайту"
+
+    def __str__(self) -> str:
+        return "Налаштування сайту"
+
+    def save(self, *args, **kwargs) -> None:
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls) -> "SiteSettings":
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class StaticPage(models.Model):
     title = models.CharField("Заголовок", max_length=255)
     slug = models.SlugField("Slug", unique=True, allow_unicode=True)

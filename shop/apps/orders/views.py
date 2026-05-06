@@ -1,11 +1,17 @@
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from apps.cart.services import clear_cart, get_cart_items
+from apps.payments.services import create_monobank_invoice
 
 from .forms import CheckoutForm
 from .models import Order, OrderItem
+
+logger = logging.getLogger(__name__)
 
 
 def checkout(request: HttpRequest) -> HttpResponse:
@@ -21,6 +27,7 @@ def checkout(request: HttpRequest) -> HttpResponse:
                 order.user = request.user
             order.total = sum(i.product.retail_price * i.quantity for i in cart_items)
             order.save()
+
             for item in cart_items:
                 OrderItem.objects.create(
                     order=order,
@@ -31,6 +38,23 @@ def checkout(request: HttpRequest) -> HttpResponse:
                     price=item.product.retail_price,
                 )
             clear_cart(request)
+
+            if order.payment_method == Order.PaymentMethod.MONOBANK:
+                redirect_url = request.build_absolute_uri(
+                    reverse("orders:success", kwargs={"pk": order.pk})
+                )
+                webhook_url = request.build_absolute_uri(
+                    reverse("payments:monobank_callback")
+                )
+                page_url = create_monobank_invoice(order, redirect_url, webhook_url)
+                if page_url:
+                    return redirect(page_url)
+
+                # MonoBank API unavailable — order saved, manager will follow up
+                logger.error("MonoBank invoice creation failed for order #%s", order.pk)
+                order.status = Order.Status.CONFIRMED
+                order.save(update_fields=["status"])
+
             return redirect("orders:success", pk=order.pk)
     else:
         initial = {}
@@ -51,7 +75,16 @@ def checkout(request: HttpRequest) -> HttpResponse:
 
 def order_success(request: HttpRequest, pk: int) -> HttpResponse:
     order = get_object_or_404(Order, pk=pk)
-    return render(request, "orders/success.html", {"order": order})
+    payment = (
+        order.payments
+        .filter(provider="monobank")
+        .order_by("-created_at")
+        .first()
+    )
+    return render(request, "orders/success.html", {
+        "order": order,
+        "payment": payment,
+    })
 
 
 def order_detail(request: HttpRequest, pk: int) -> HttpResponse:

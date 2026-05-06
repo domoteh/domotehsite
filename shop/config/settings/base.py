@@ -15,6 +15,9 @@ DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -26,7 +29,8 @@ INSTALLED_APPS = [
     # Third-party
     "mptt",
     "django_htmx",
-    "storages",
+    "cloudinary_storage",
+    "cloudinary",
     "django_ckeditor_5",
     # Project apps
     "apps.accounts",
@@ -39,6 +43,7 @@ INSTALLED_APPS = [
     "apps.reviews",
     "apps.pages",
     "apps.blog",
+    "apps.shipping",
 ]
 
 MIDDLEWARE = [
@@ -68,6 +73,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.catalog.context_processors.categories_menu",
                 "apps.cart.context_processors.cart_summary",
+                "apps.pages.context_processors.site_settings",
             ],
         },
     },
@@ -138,7 +144,87 @@ CKEDITOR_5_CONFIGS = {
     },
 }
 
-# Payment settings
-LIQPAY_PUBLIC_KEY = env("LIQPAY_PUBLIC_KEY", default="")
-LIQPAY_PRIVATE_KEY = env("LIQPAY_PRIVATE_KEY", default="")
+UNFOLD = {
+    "SITE_TITLE": "DOMOTEH Адмінка",
+    "SITE_HEADER": "DOMOTEH — Управління магазином",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "storefront",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "LOGO": "/static/images/logo.png",
+    "COLORS": {
+        "primary": {
+            "50": "250 245 255",
+            "100": "243 232 255",
+            "200": "233 213 255",
+            "300": "216 180 254",
+            "400": "192 132 252",
+            "500": "168 85 247",
+            "600": "147 51 234",
+            "700": "126 34 206",
+            "800": "107 33 168",
+            "900": "88 28 135",
+            "950": "59 7 100",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": "Каталог",
+                "icon": "inventory_2",
+                "items": [
+                    {"title": "Категорії", "icon": "category", "link": "/admin/catalog/category/"},
+                    {"title": "Товари", "icon": "shopping_bag", "link": "/admin/catalog/product/"},
+                ],
+            },
+            {
+                "title": "Замовлення",
+                "icon": "receipt_long",
+                "items": [
+                    {"title": "Замовлення", "icon": "orders", "link": "/admin/orders/order/"},
+                    {"title": "Платежі", "icon": "payments", "link": "/admin/payments/payment/"},
+                ],
+            },
+            {
+                "title": "Клієнти",
+                "icon": "group",
+                "items": [
+                    {"title": "Користувачі", "icon": "person", "link": "/admin/accounts/user/"},
+                    {"title": "Відгуки", "icon": "star", "link": "/admin/reviews/review/"},
+                    {"title": "Питання", "icon": "help", "link": "/admin/reviews/question/"},
+                    {"title": "Підписники", "icon": "mail", "link": "/admin/pages/newslettersubscriber/"},
+                ],
+            },
+            {
+                "title": "Контент",
+                "icon": "article",
+                "items": [
+                    {"title": "Статичні сторінки", "icon": "description", "link": "/admin/pages/staticpage/"},
+                    {"title": "Блог", "icon": "feed", "link": "/admin/blog/blogpost/"},
+                ],
+            },
+            {
+                "title": "Налаштування",
+                "icon": "settings",
+                "items": [
+                    {"title": "Налаштування сайту", "icon": "tune", "link": "/admin/pages/sitesettings/1/change/"},
+                ],
+            },
+        ],
+    },
+}
+
+# MonoBank Acquiring
 MONOBANK_TOKEN = env("MONOBANK_TOKEN", default="")
+MONOBANK_API_BASE = "https://api.monobank.ua"
+
+# Nova Poshta
+NOVA_POSHTA_API_KEY = env("NOVA_POSHTA_API_KEY", default="")
+# Sender configuration — fill in the merchant cabinet values
+NOVA_POSHTA_SENDER_REF = env("NOVA_POSHTA_SENDER_REF", default="")
+NOVA_POSHTA_CONTACT_SENDER_REF = env("NOVA_POSHTA_CONTACT_SENDER_REF", default="")
+NOVA_POSHTA_SENDER_CITY_REF = env("NOVA_POSHTA_SENDER_CITY_REF", default="")
+NOVA_POSHTA_SENDER_WAREHOUSE_REF = env("NOVA_POSHTA_SENDER_WAREHOUSE_REF", default="")
+NOVA_POSHTA_SENDER_PHONE = env("NOVA_POSHTA_SENDER_PHONE", default="")

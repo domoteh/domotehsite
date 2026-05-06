@@ -22,4 +22,4 @@ _ALLOWED_ATTRS: dict[str, set[str]] = {
 
 def sanitize_html(value: str) -> str:
     """Очищає HTML від потенційно небезпечних тегів та атрибутів."""
-    return nh3.clean(value, tags=_ALLOWED_TAGS, attributes=_ALLOWED_ATTRS)
+    return nh3.clean(value, tags=_ALLOWED_TAGS, attributes=_ALLOWED_ATTRS, link_rel=None)

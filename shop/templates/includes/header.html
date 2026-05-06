@@ -4,7 +4,7 @@
     <div class="container header__top-inner">
       <div class="header__contacts">
         <span>Працюємо: з 8:00 до 15:00, п'ятниця — вихідний</span>
-        <a href="tel:+380989953080">+38 (098) 995-30-80</a>
+        {% if site_settings.phone_1 %}<a href="tel:{{ site_settings.phone_1|cut:' '|cut:'-'|cut:'('|cut:')' }}">{{ site_settings.phone_1 }}</a>{% endif %}
       </div>
       <div class="header__links">
         {% if user.is_authenticated %}
@@ -22,7 +22,9 @@
   <div class="header__main">
     <div class="container header__main-inner">
       <button class="mobile-toggle" data-mobile-toggle aria-label="Меню">&#9776;</button>
-      <a href="{% url 'catalog:home' %}" class="header__logo">LMM<span>.shop</span></a>
+      <a href="{% url 'catalog:home' %}" class="header__logo">
+        <img src="{% static 'images/logo.png' %}" alt="DOMOTEH" class="header__logo-img">
+      </a>
 
       <form class="header__search" action="{% url 'catalog:search' %}" method="get">
         <input type="search" name="q" placeholder="Пошук товарів..." value="{{ request.GET.q|default:'' }}" aria-label="Пошук">

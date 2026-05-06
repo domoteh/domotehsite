@@ -307,14 +307,22 @@ button, input, select, textarea {
 }
 
 .header__logo {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--color-primary);
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-.header__logo span {
-  color: var(--color-accent);
+.header__logo-img {
+  height: 70px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+@media (max-width: 480px) {
+  .header__logo-img {
+    height: 40px;
+  }
 }
 
 .header__search {
@@ -1151,9 +1159,26 @@ button, input, select, textarea {
 .footer__bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   padding-top: 16px;
-  text-align: center;
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.footer__bottom a {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+}
+.footer__bottom a:hover {
+  color: #fff;
+}
+@media (max-width: 600px) {
+  .footer__bottom {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 /* ===== AUTH FORMS ===== */

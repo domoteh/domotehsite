@@ -21,17 +21,9 @@ STORAGES = {
     },
 }
 
-_bucket = env("AWS_STORAGE_BUCKET_NAME", default="")  # noqa: F405
-if _bucket:
-    STORAGES["default"] = {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"}
-    AWS_STORAGE_BUCKET_NAME = _bucket
-    AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="auto")  # noqa: F405
-    AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default="")  # noqa: F405
-    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")  # noqa: F405
-    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")  # noqa: F405
-    AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN", default="")  # noqa: F405
-    AWS_DEFAULT_ACL = None
-    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+CLOUDINARY_URL = env("CLOUDINARY_URL", default="")  # noqa: F405
+if CLOUDINARY_URL:
+    STORAGES["default"] = {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"}
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = True

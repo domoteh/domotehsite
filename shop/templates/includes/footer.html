@@ -30,9 +30,9 @@
       <div>
         <h4 class="footer__title">Контакти</h4>
         <div class="footer__list">
-          <a href="tel:+380989953080">+38 (098) 995-30-80</a>
-          <a href="tel:+380939953080">+38 (093) 995-30-80</a>
-          <a href="mailto:shop@lmm.in.ua">shop@lmm.in.ua</a>
+          {% if site_settings.phone_1 %}<a href="tel:{{ site_settings.phone_1|cut:' '|cut:'-'|cut:'('|cut:')' }}">{{ site_settings.phone_1 }}</a>{% endif %}
+          {% if site_settings.phone_2 %}<a href="tel:{{ site_settings.phone_2|cut:' '|cut:'-'|cut:'('|cut:')' }}">{{ site_settings.phone_2 }}</a>{% endif %}
+          {% if site_settings.email %}<a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a>{% endif %}
         </div>
         <h4 class="footer__title" style="margin-top:16px">Підписка</h4>
         <form class="footer__subscribe"
@@ -46,7 +46,8 @@
       </div>
     </div>
     <div class="footer__bottom">
-      LMM — Інтернет-магазин низьких цін &copy; {% now "Y" %}
+      <span>{{ site_settings.shop_name }} — {{ site_settings.shop_tagline }} &copy; {% now "Y" %}</span>
+      <span>Розроблено <a href="https://prometeylabs.com" target="_blank" rel="noopener">PrometeyLabs</a></span>
     </div>
   </div>
 </footer>

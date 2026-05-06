@@ -1,34 +1,259 @@
 {% extends "base.html" %}
 
-{% block title %}Замовлення оформлено — LMM{% endblock %}
+{% block title %}Замовлення #{{ order.pk }} — DOMOTEH{% endblock %}
+
+{% block head_extra %}
+{% if order.payment_method == "monobank" and payment and payment.status == "pending" %}
+<meta http-equiv="refresh" content="6;url={% url 'orders:success' pk=order.pk %}">
+{% endif %}
+<style>
+  /* ── Success page layout ─────────────────────────────────────────────── */
+  .success-page {
+    max-width: 560px;
+    margin: 60px auto;
+    padding: 0 16px;
+    text-align: center;
+  }
+
+  .success-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .success-icon--ok   { background: color-mix(in srgb, #22c55e 12%, transparent); }
+  .success-icon--wait { background: color-mix(in srgb, #f59e0b 12%, transparent); }
+  .success-icon--fail { background: color-mix(in srgb, #ef4444 12%, transparent); }
+  .success-icon--cod  { background: color-mix(in srgb, #6366f1 12%, transparent); }
+
+  .success-icon svg { width: 40px; height: 40px; }
+
+  .success-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--color-text);
+  }
+
+  .success-subtitle {
+    color: var(--color-text-muted);
+    line-height: 1.55;
+    margin-bottom: 24px;
+  }
+
+  /* ── Order summary card ──────────────────────────────────────────────── */
+  .order-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+
+  .order-card__row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--color-border);
+    gap: 12px;
+  }
+
+  .order-card__row:last-child { border-bottom: none; }
+
+  .order-card__label { color: var(--color-text-muted); flex-shrink: 0; }
+
+  .order-card__total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 12px;
+    text-align: right;
+  }
+
+  /* ── Spinner ─────────────────────────────────────────────────────────── */
+  .spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--color-border);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Action buttons ──────────────────────────────────────────────────── */
+  .success-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ── Mobile ──────────────────────────────────────────────────────────── */
+  @media (max-width: 480px) {
+    .success-page { margin: 32px auto; }
+    .success-title { font-size: 1.25rem; }
+    .success-actions { flex-direction: column; align-items: stretch; }
+    .success-actions .btn { text-align: center; }
+  }
+
+  /* ── iOS Safari safe area ────────────────────────────────────────────── */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .success-page { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div style="text-align:center;padding:60px 0">
-  <h1 class="section__title">Замовлення #{{ order.pk }} оформлено!</h1>
-  <p style="margin:16px 0;color:var(--color-text-muted)">Дякуємо за замовлення. Ми зв'яжемося з вами найближчим часом.</p>
-  <p>Спосіб оплати: <strong>{{ order.get_payment_method_display }}</strong></p>
-  <p>Спосіб доставки: <strong>{{ order.get_delivery_method_display }}</strong></p>
-  <p style="margin-top:8px">Сума: <strong>{{ order.total|floatformat:2 }} грн</strong></p>
+<div class="success-page">
 
-  {% if order.payment_method == "liqpay" %}
-  <div style="margin-top:24px">
-    <p>Для оплати через LiqPay натисніть кнопку нижче:</p>
-    <a href="#" class="btn btn--primary" style="margin-top:8px">Оплатити через LiqPay</a>
+  {# ── MONOBANK: pending / processing ── #}
+  {% if order.payment_method == "monobank" and payment and payment.status == "pending" %}
+
+  <div class="success-icon success-icon--wait">
+    <div class="spinner"></div>
   </div>
-  {% elif order.payment_method == "monobank" %}
-  <div style="margin-top:24px">
-    <p>Для оплати через MonoBank натисніть кнопку нижче:</p>
-    <a href="#" class="btn btn--primary" style="margin-top:8px">Оплатити через MonoBank</a>
+  <h1 class="success-title">Очікуємо підтвердження</h1>
+  <p class="success-subtitle">
+    Платіж обробляється. Сторінка оновиться автоматично.<br>
+    Це займає кілька секунд.
+  </p>
+  <div class="order-card">
+    <div class="order-card__row">
+      <span class="order-card__label">Замовлення</span>
+      <span>#{{ order.pk }}</span>
+    </div>
+    <div class="order-card__row">
+      <span class="order-card__label">Сума</span>
+      <span>{{ order.total|floatformat:2 }} грн</span>
+    </div>
   </div>
-  {% elif order.payment_method == "card_manual" %}
-  <div style="margin-top:24px;background:var(--color-bg);padding:20px;border-radius:var(--radius)">
-    <p><strong>Реквізити для оплати:</strong></p>
-    <p>Картка: XXXX XXXX XXXX XXXX (ПриватБанк)</p>
-    <p>Сума: {{ order.total|floatformat:2 }} грн</p>
-    <p>Призначення: Замовлення #{{ order.pk }}</p>
+
+  {# ── MONOBANK: success ── #}
+  {% elif order.payment_method == "monobank" and payment and payment.status == "success" %}
+
+  <div class="success-icon success-icon--ok">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="19" stroke="#22c55e" stroke-width="2"/>
+      <path d="M11 20.5l6.5 6.5 11.5-13" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
   </div>
+  <h1 class="success-title">Оплата пройшла успішно!</h1>
+  <p class="success-subtitle">
+    Дякуємо за замовлення. Ми передамо його у відправлення<br>
+    та надішлемо трекінг на вашу пошту.
+  </p>
+  <div class="order-card">
+    <div class="order-card__row">
+      <span class="order-card__label">Замовлення</span>
+      <span>#{{ order.pk }}</span>
+    </div>
+    <div class="order-card__row">
+      <span class="order-card__label">Доставка</span>
+      <span>{{ order.get_delivery_method_display }}</span>
+    </div>
+    <div class="order-card__row">
+      <span class="order-card__label">Оплата</span>
+      <span>MonoBank</span>
+    </div>
+    {% for item in order.items.all %}
+    <div class="order-card__row">
+      <span class="order-card__label">{{ item.product_name }}</span>
+      <span>{{ item.quantity }} × {{ item.price|floatformat:2 }} грн</span>
+    </div>
+    {% endfor %}
+    <div class="order-card__total">Разом: {{ order.total|floatformat:2 }} грн</div>
+  </div>
+  <div class="success-actions">
+    <a href="{% url 'catalog:home' %}" class="btn btn--outline">На головну</a>
+  </div>
+
+  {# ── MONOBANK: failed ── #}
+  {% elif order.payment_method == "monobank" and payment and payment.status == "failed" %}
+
+  <div class="success-icon success-icon--fail">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="19" stroke="#ef4444" stroke-width="2"/>
+      <path d="M13 13l14 14M27 13L13 27" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <h1 class="success-title">Оплату не підтверджено</h1>
+  <p class="success-subtitle">
+    На жаль, оплата не пройшла. Ваше замовлення збережено.<br>
+    Спробуйте ще раз або зверніться до нас.
+  </p>
+  <div class="order-card">
+    <div class="order-card__row">
+      <span class="order-card__label">Замовлення</span>
+      <span>#{{ order.pk }}</span>
+    </div>
+    <div class="order-card__row">
+      <span class="order-card__label">Сума</span>
+      <span>{{ order.total|floatformat:2 }} грн</span>
+    </div>
+  </div>
+  <div class="success-actions">
+    <a href="{% url 'orders:detail' pk=order.pk %}" class="btn btn--accent">Спробувати ще раз</a>
+    <a href="{% url 'catalog:home' %}" class="btn btn--outline">На головну</a>
+  </div>
+
+  {# ── MONOBANK: no payment record yet (race condition, auto-refresh) ── #}
+  {% elif order.payment_method == "monobank" and not payment %}
+  <meta http-equiv="refresh" content="4;url={% url 'orders:success' pk=order.pk %}">
+  <div class="success-icon success-icon--wait">
+    <div class="spinner"></div>
+  </div>
+  <h1 class="success-title">Замовлення оформлено</h1>
+  <p class="success-subtitle">Перевіряємо статус оплати…</p>
+
+  {# ── COD ── #}
+  {% else %}
+
+  <div class="success-icon success-icon--cod">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="10" width="28" height="20" rx="4" stroke="#6366f1" stroke-width="2"/>
+      <path d="M6 16h28" stroke="#6366f1" stroke-width="2"/>
+      <circle cx="14" cy="23" r="2" fill="#6366f1"/>
+    </svg>
+  </div>
+  <h1 class="success-title">Замовлення оформлено!</h1>
+  <p class="success-subtitle">
+    Дякуємо! Оплата при отриманні — ви сплатите кур'єру або у відділенні.<br>
+    Ми зв'яжемося з вами для підтвердження.
+  </p>
+  <div class="order-card">
+    <div class="order-card__row">
+      <span class="order-card__label">Замовлення</span>
+      <span>#{{ order.pk }}</span>
+    </div>
+    <div class="order-card__row">
+      <span class="order-card__label">Доставка</span>
+      <span>{{ order.get_delivery_method_display }}</span>
+    </div>
+    <div class="order-card__row">
+      <span class="order-card__label">Оплата</span>
+      <span>Накладений платіж</span>
+    </div>
+    {% for item in order.items.all %}
+    <div class="order-card__row">
+      <span class="order-card__label">{{ item.product_name }}</span>
+      <span>{{ item.quantity }} × {{ item.price|floatformat:2 }} грн</span>
+    </div>
+    {% endfor %}
+    <div class="order-card__total">Разом: {{ order.total|floatformat:2 }} грн</div>
+  </div>
+  <div class="success-actions">
+    <a href="{% url 'catalog:home' %}" class="btn btn--outline">На головну</a>
+  </div>
+
   {% endif %}
 
-  <a href="{% url 'catalog:home' %}" class="btn btn--outline" style="margin-top:24px">Повернутися на головну</a>
 </div>
 {% endblock %}

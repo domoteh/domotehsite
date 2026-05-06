@@ -1,0 +1,12 @@
+{% if warehouses %}
+<select class="form-select" id="np-warehouse-select" onchange="npSelectWarehouse(this)">
+  <option value="">— Оберіть відділення —</option>
+  {% for w in warehouses %}
+  <option value="{{ w.Ref }}" data-address="{{ w.Description }}">
+    {{ w.Description }}
+  </option>
+  {% endfor %}
+</select>
+{% else %}
+<p class="np-dropdown__empty">Спочатку оберіть місто</p>
+{% endif %}

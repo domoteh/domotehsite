@@ -22,9 +22,7 @@ class Order(models.Model):
         PICKUP = "pickup", "Самовивіз"
 
     class PaymentMethod(models.TextChoices):
-        CARD_MANUAL = "card_manual", "Оплата на картку"
-        LIQPAY = "liqpay", "LiqPay"
-        MONOBANK = "monobank", "MonoBank"
+        MONOBANK = "monobank", "MonoBank (онлайн)"
         COD = "cod", "Накладений платіж"
 
     user = models.ForeignKey(
@@ -39,7 +37,9 @@ class Order(models.Model):
     delivery_method = models.CharField("Доставка", max_length=20, choices=DeliveryMethod.choices)
     delivery_address = models.TextField("Адреса доставки", blank=True)
     nova_poshta_city = models.CharField("Місто НП", max_length=255, blank=True)
-    nova_poshta_warehouse = models.CharField("Відділення НП", max_length=255, blank=True)
+    nova_poshta_city_ref = models.CharField("Ref міста НП", max_length=36, blank=True)
+    nova_poshta_warehouse = models.CharField("Відділення НП", max_length=500, blank=True)
+    nova_poshta_warehouse_ref = models.CharField("Ref відділення НП", max_length=36, blank=True)
     payment_method = models.CharField("Оплата", max_length=20, choices=PaymentMethod.choices)
     total = models.DecimalField("Сума", max_digits=12, decimal_places=2, default=0)
     tracking_number = models.CharField("ТТН", max_length=50, blank=True)
