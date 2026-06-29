@@ -1,0 +1,4 @@
+<form method="post" action="{% url 'accounts:logout' %}" class="logout-form logout-form--{{ variant|default:'inline' }}">
+  {% csrf_token %}
+  <button type="submit" class="{% if variant == 'profile' %}btn btn--outline{% else %}logout-form__btn{% endif %}">Вийти</button>
+</form>
